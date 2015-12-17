@@ -26,25 +26,42 @@ test: ## Basic unit tests
 	make test-client1
 	
 test1: 
-	go clean
 	go install
-	make test-client2
+	make test-client1
 
 test-client1: ## Test a simple http2 connection
 	$(OUT) start --dump &
 	$(OUT) connect http2.akamai.com
 	$(OUT) get /index.html > /dev/null
+	$(OUT) disconnect
 	$(OUT) stop
 
 test-client2: ## Test a simple http connection
 	$(OUT) start --dump &
 	$(OUT) connect akamai.com > /dev/null
 	$(OUT) get /index.html
+	$(OUT) disconnect
 	$(OUT) stop
 
-test-client3: 
+test-client3: ## Test a more complex http2 connection with pushes
 	$(OUT) start --dump &
-	$(OUT) connect http2.akamai.com
+	$(OUT) connect http2.cloudflare.com > /dev/null
+	$(OUT) get /  > /dev/null
+	sleep 4
+	$(OUT) disconnect
+	$(OUT) stop
+
+test-client4: ## Test a server push every second
+	$(OUT) start --dump &
+	$(OUT) connect http2.golang.org
+	$(OUT) get /clockstream &
+	sh -c "sleep 4; $(OUT) disconnect; $(OUT) stop" &
+
+test-client5: ## Test a page with many images
+	$(OUT) start --dump &
+	$(OUT) connect http2.golang.org
+	$(OUT) get /gophertiles
+	$(OUT) disconnect
 	$(OUT) stop
 
 test-wiretap1: ## Test wiretap functionality

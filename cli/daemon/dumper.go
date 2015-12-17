@@ -1,6 +1,7 @@
 package daemon
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/rmohid/h2c/http2client/frames"
@@ -23,7 +24,12 @@ func DumpOutgoing(frame frames.Frame) {
 	dump("SND ", frame)
 }
 
+func syncRequestedUri(name string) {
+	//	prefixColor.Printf("Checking %v \n", name)
+}
+
 func dump(prefix string, frame frames.Frame) {
+	color.NoColor = true // disables colorized output
 	prefixColor.Printf("%v ", prefix)
 	switch f := frame.(type) {
 	case *frames.HeadersFrame:
@@ -37,6 +43,7 @@ func dump(prefix string, frame frames.Frame) {
 			for _, header := range f.Headers {
 				keyColor.Printf("    %v:", header.Name)
 				valueColor.Printf(" %v\n", header.Value)
+				syncRequestedUri(header.Name)
 			}
 		}
 	case *frames.DataFrame:
@@ -44,6 +51,11 @@ func dump(prefix string, frame frames.Frame) {
 		streamIdColor.Printf("(%v)\n", f.StreamId)
 		dumpEndStream(f.EndStream)
 		keyColor.Printf("    {%v bytes}\n", len(f.Data))
+		// TODO toggle inclusion of payload in data frame
+		//str := string(f.Data[:len(f.Data)])
+		str := hex.Dump(f.Data[:len(f.Data)])
+		prefixColor.Printf("%s\n", str)
+
 	case *frames.PriorityFrame:
 		frameTypeColor.Printf("PRIORITY")
 		keyColor.Printf("    Stream dependency:")
@@ -52,6 +64,7 @@ func dump(prefix string, frame frames.Frame) {
 		valueColor.Printf(" %v\n", f.Weight)
 		keyColor.Printf("    Exclusive:")
 		valueColor.Printf(" %v\n", f.Exclusive)
+
 	case *frames.SettingsFrame:
 		frameTypeColor.Printf("SETTINGS")
 		streamIdColor.Printf("(%v)\n", f.StreamId)
@@ -64,6 +77,7 @@ func dump(prefix string, frame frames.Frame) {
 				valueColor.Printf(" %v\n", value)
 			}
 		}
+
 	case *frames.PushPromiseFrame:
 		frameTypeColor.Printf("PUSH_PROMISE")
 		streamIdColor.Printf("(%v)\n", f.StreamId)
@@ -78,11 +92,13 @@ func dump(prefix string, frame frames.Frame) {
 				valueColor.Printf(" %v\n", header.Value)
 			}
 		}
+
 	case *frames.RstStreamFrame:
 		frameTypeColor.Printf("RST_STREAM")
 		streamIdColor.Printf("(%v)\n", f.StreamId)
 		keyColor.Printf("    Error code:")
 		valueColor.Printf(" %v\n", f.ErrorCode.String())
+
 	case *frames.GoAwayFrame:
 		frameTypeColor.Printf("GOAWAY")
 		streamIdColor.Printf("(%v)\n", f.StreamId)
@@ -90,11 +106,13 @@ func dump(prefix string, frame frames.Frame) {
 		valueColor.Printf(" %v\n", f.LastStreamId)
 		keyColor.Printf("    Error code:")
 		valueColor.Printf(" %v\n", f.ErrorCode.String())
+
 	case *frames.WindowUpdateFrame:
 		frameTypeColor.Printf("WINDOW_UPDATE")
 		streamIdColor.Printf("(%v)\n", f.StreamId)
 		keyColor.Printf("    Window size increment:")
 		valueColor.Printf(" %v\n", f.WindowSizeIncrement)
+
 	default:
 		frameTypeColor.Printf("UNKNOWN (NOT IMPLEMENTED) FRAME TYPE %v\n", frame.Type())
 	}
