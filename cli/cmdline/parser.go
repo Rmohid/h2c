@@ -61,7 +61,7 @@ func parseOptions(args []string, cmd *command) ([]string, map[string]string, err
 }
 
 func globalUsage() string {
-	result := "Usage: h2c ["
+	result := "Usage: h2c (rmohid) ["
 	first := true
 	for _, cmd := range commands {
 		if !first {
