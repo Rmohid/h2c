@@ -7,9 +7,9 @@ set -e
 # If you need a release, please get it from https://github.com/fstab/h2c
 # ----------------------------------------------------------------------
 
-VERSION=v0.0.9-SNAPSHOT
+VERSION=v0.0.1-PROTO
 
-cat > $GOPATH/src/github.com/fstab/h2c/http2client/version.go <<EOF
+cat > $GOPATH/src/github.com/rmohid/h2c/http2client/version.go <<EOF
 package http2client
 
 const (
@@ -17,9 +17,9 @@ const (
 	BUILD_DATE = "`date +%Y-%m-%d`"
 )
 EOF
-go fmt $GOPATH/src/github.com/fstab/h2c/http2client/version.go
+go fmt $GOPATH/src/github.com/rmohid/h2c/http2client/version.go
 
-docker run -v $GOPATH:/go -t -i fstab/gox bash -c 'GO15VENDOREXPERIMENT=1 gox github.com/fstab/h2c'
+docker run -v $GOPATH:/go -t -i fstab/gox bash -c 'GO15VENDOREXPERIMENT=1 gox github.com/rmohid/h2c'
 
 BUILD_DIR=$(mktemp -d)
 mkdir "$BUILD_DIR/h2c-$VERSION"
@@ -30,7 +30,7 @@ mkdir bin LICENSE
 mv $GOPATH/h2c_* bin
 
 # copy licenses and make them windows encoded
-unix2dos -n $GOPATH/src/github.com/fstab/h2c/LICENSE LICENSE/apache-license.txt
+unix2dos -n $GOPATH/src/github.com/rmohid/h2c/LICENSE LICENSE/apache-license.txt
 curl https://go.googlecode.com/hg/LICENSE | unix2dos > LICENSE/go-license.txt
 curl https://raw.githubusercontent.com/fatih/color/master/LICENSE.md | unix2dos > LICENSE/MIT-license.txt
 unix2dos > LICENSE/LICENSE.txt <<EOF
@@ -58,4 +58,4 @@ EOF
 cd ..
 zip -r h2c-$VERSION.zip h2c-$VERSION
 rm -r h2c-$VERSION
-mv h2c-$VERSION.zip $GOPATH/src/github.com/fstab/h2c
+mv h2c-$VERSION.zip $GOPATH/src/github.com/rmohid/h2c
