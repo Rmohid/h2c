@@ -16,11 +16,11 @@ var (
 )
 
 func DumpIncoming(frame frames.Frame) {
-	dump("<-", frame)
+	dump("RCV ", frame)
 }
 
 func DumpOutgoing(frame frames.Frame) {
-	dump("->", frame)
+	dump("SND ", frame)
 }
 
 func dump(prefix string, frame frames.Frame) {
