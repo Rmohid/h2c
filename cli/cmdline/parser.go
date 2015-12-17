@@ -3,7 +3,7 @@ package cmdline
 
 import (
 	"errors"
-	"github.com/fstab/h2c/cli/rpc"
+	"github.com/rmohid/h2c/cli/rpc"
 )
 
 func Parse(args []string) (*rpc.Command, error) {

@@ -1,7 +1,7 @@
 package cmdline
 
 import (
-	"github.com/fstab/h2c/cli/rpc"
+	"github.com/rmohid/h2c/cli/rpc"
 	"testing"
 )
 
