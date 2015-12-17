@@ -13,28 +13,41 @@ var (
 	streamIdColor  = color.New(color.FgCyan)
 	flagColor      = color.New(color.FgGreen)
 	keyColor       = color.New(color.FgBlue)
+	pushColor      = color.New(color.FgRed)
 	valueColor     = color.New()
 )
 
 func DumpIncoming(frame frames.Frame) {
+	peekIncoming(frame)
 	dump("RCV ", frame)
 }
 
 func DumpOutgoing(frame frames.Frame) {
+	peekOutgoing(frame)
 	dump("SND ", frame)
 }
 
-func syncRequestedUri(name string) {
-	//	prefixColor.Printf("Checking %v \n", name)
+func peekOutgoing(frame frames.Frame) {
+	// TODO: Collect any stream originating here
+	// Reset table on disconnect
+}
+
+func isLocalStream(frame frames.Frame) bool {
+	// TODO:  Check if we reused this stream id before
+	return false
 }
 
 func dump(prefix string, frame frames.Frame) {
-	color.NoColor = true // disables colorized output
+	//color.NoColor = true // disables colorized output
 	prefixColor.Printf("%v ", prefix)
 	switch f := frame.(type) {
 	case *frames.HeadersFrame:
 		frameTypeColor.Printf("HEADERS")
-		streamIdColor.Printf("(%v)\n", f.StreamId)
+		if isLocalStream(f) {
+			streamIdColor.Printf("(%v)\n", f.StreamId)
+		} else {
+			pushColor.Printf("(%v) PUSHED \n", f.StreamId)
+		}
 		dumpEndStream(f.EndStream)
 		dumpEndHeaders(f.EndHeaders)
 		if len(f.Headers) == 0 {
@@ -48,7 +61,11 @@ func dump(prefix string, frame frames.Frame) {
 		}
 	case *frames.DataFrame:
 		frameTypeColor.Printf("DATA")
-		streamIdColor.Printf("(%v)\n", f.StreamId)
+		if isLocalStream(f) {
+			streamIdColor.Printf("(%v)\n", f.StreamId)
+		} else {
+			pushColor.Printf("(%v) PUSHED \n", f.StreamId)
+		}
 		dumpEndStream(f.EndStream)
 		keyColor.Printf("    {%v bytes}\n", len(f.Data))
 		// TODO toggle inclusion of payload in data frame
