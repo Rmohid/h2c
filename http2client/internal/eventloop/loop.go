@@ -2,9 +2,9 @@ package eventloop
 
 import (
 	"fmt"
-	"github.com/fstab/h2c/http2client/frames"
-	"github.com/fstab/h2c/http2client/internal/connection"
-	"github.com/fstab/h2c/http2client/internal/message"
+	"github.com/rmohid/h2c/http2client/frames"
+	"github.com/rmohid/h2c/http2client/internal/connection"
+	"github.com/rmohid/h2c/http2client/internal/message"
 	"os"
 )
 
@@ -29,7 +29,7 @@ type Loop struct {
 // (that is, h2c avoids concurrency problems by being single-threaded per connection).
 //
 // The eventloop takes all events, and executes them sequentially in a single thread.
-// The implementation in github.com/fstab/h2c/http2client/connection does not need
+// The implementation in github.com/rmohid/h2c/http2client/connection does not need
 // to care about thread safety.
 //
 // There are two sources of events:

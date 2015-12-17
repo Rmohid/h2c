@@ -3,8 +3,8 @@ package connection
 import (
 	"bytes"
 	"fmt"
-	"github.com/fstab/h2c/http2client/frames"
-	"github.com/fstab/h2c/http2client/internal/message"
+	"github.com/rmohid/h2c/http2client/frames"
+	"github.com/rmohid/h2c/http2client/internal/message"
 	"golang.org/x/net/http2/hpack"
 )
 

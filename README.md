@@ -45,9 +45,9 @@ For a complete list of available commands, run `h2c --help`.
 How to Download and Run
 -----------------------
 
-Binary releases are available on the [GitHub Releases](https://github.com/fstab/h2c/releases).
+Binary releases are available on the [GitHub Releases](https://github.com/rmohid/h2c/releases).
 
-1. Download the latest release ZIP file: [h2c-v0.0.8.zip](https://github.com/fstab/h2c/releases/download/v0.0.8/h2c-v0.0.8.zip)
+1. Download the latest release ZIP file: [h2c-v0.0.8.zip](https://github.com/rmohid/h2c/releases/download/v0.0.8/h2c-v0.0.8.zip)
 2. Extract the ZIP file
 3. Find the executable for your system in the `bin` folder:
   * Linux: `h2c_linux_amd64`
@@ -68,7 +68,7 @@ The following command will download, compile, and install `h2c`:
 
 ```bash
 export GO15VENDOREXPERIMENT=1
-go get github.com/fstab/h2c
+go get github.com/rmohid/h2c
 ```
 
 Related Work

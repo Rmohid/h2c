@@ -4,7 +4,7 @@ set -e
 
 # ----------------------------------------------------------------------
 # These are just some notes to myself on how I built the release.
-# If you need a release, please get it from https://github.com/fstab/h2c
+# If you need a release, please get it from https://github.com/rmohid/h2c
 # ----------------------------------------------------------------------
 
 VERSION=v0.0.1-PROTO
@@ -52,7 +52,7 @@ h2c is a single executable. Find the executable for your platform in the bin dir
 About
 -----
 
-See https://github.com/fstab/h2c for more info.
+See https://github.com/rmohid/h2c for more info.
 EOF
  
 cd ..
