@@ -9,6 +9,8 @@ help: ##  This help dialog.
 	@cat $(MAKEFILE_LIST) | perl -ne 's/(^\S+): .*##\s*(.+)/printf "\n %-16s %s", $$1,$$2/eg'
 
 build: .FORCE  ## Build the binary
+	go get golang.org/x/net/http2/hpack
+	go get github.com/fatih/color
 	go install
 
 get: .FORCE  ## Install into existing golang setup
@@ -44,6 +46,7 @@ test-client2: ## Test a simple http connection
 	$(OUT) stop
 
 test-client3: ## Test a more complex http2 connection with pushes
+	pkill $(OUT) || true
 	$(OUT) start --dump &
 	$(OUT) connect http2.cloudflare.com > /dev/null
 	$(OUT) get /  > /dev/null

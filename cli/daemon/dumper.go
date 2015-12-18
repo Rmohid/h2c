@@ -1,10 +1,11 @@
 package daemon
 
 import (
-	"encoding/hex"
+	//	"encoding/hex"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/rmohid/h2c/http2client/frames"
+	"github.com/rmohid/h2c/http2client/session"
 )
 
 var (
@@ -18,7 +19,6 @@ var (
 )
 
 func DumpIncoming(frame frames.Frame) {
-	peekIncoming(frame)
 	dump("RCV ", frame)
 }
 
@@ -28,13 +28,17 @@ func DumpOutgoing(frame frames.Frame) {
 }
 
 func peekOutgoing(frame frames.Frame) {
-	// TODO: Collect any stream originating here
-	// Reset table on disconnect
+	// TODO: Check if it's possible to overflow the stream id and handle it
+	// Record any stream id's requested by us
+	switch f := frame.(type) {
+	case *frames.HeadersFrame:
+		session.SetLocalSteamId(f.StreamId)
+	}
 }
 
-func isLocalStream(frame frames.Frame) bool {
-	// TODO:  Check if we reused this stream id before
-	return false
+func isLocalStream(id uint32) bool {
+	//  Check if we reused this stream id before
+	return session.IsLocalSteamId(id)
 }
 
 func dump(prefix string, frame frames.Frame) {
@@ -43,7 +47,7 @@ func dump(prefix string, frame frames.Frame) {
 	switch f := frame.(type) {
 	case *frames.HeadersFrame:
 		frameTypeColor.Printf("HEADERS")
-		if isLocalStream(f) {
+		if isLocalStream(f.StreamId) {
 			streamIdColor.Printf("(%v)\n", f.StreamId)
 		} else {
 			pushColor.Printf("(%v) PUSHED \n", f.StreamId)
@@ -56,12 +60,11 @@ func dump(prefix string, frame frames.Frame) {
 			for _, header := range f.Headers {
 				keyColor.Printf("    %v:", header.Name)
 				valueColor.Printf(" %v\n", header.Value)
-				syncRequestedUri(header.Name)
 			}
 		}
 	case *frames.DataFrame:
 		frameTypeColor.Printf("DATA")
-		if isLocalStream(f) {
+		if isLocalStream(f.StreamId) {
 			streamIdColor.Printf("(%v)\n", f.StreamId)
 		} else {
 			pushColor.Printf("(%v) PUSHED \n", f.StreamId)
@@ -70,8 +73,8 @@ func dump(prefix string, frame frames.Frame) {
 		keyColor.Printf("    {%v bytes}\n", len(f.Data))
 		// TODO toggle inclusion of payload in data frame
 		//str := string(f.Data[:len(f.Data)])
-		str := hex.Dump(f.Data[:len(f.Data)])
-		prefixColor.Printf("%s\n", str)
+		//str := hex.Dump(f.Data[:len(f.Data)])
+		//prefixColor.Printf("%s\n", str)
 
 	case *frames.PriorityFrame:
 		frameTypeColor.Printf("PRIORITY")
