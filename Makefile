@@ -68,8 +68,15 @@ test-client5: ## Test a page with many images
 	$(OUT) stop
 
 test-wiretap1: ## Test wiretap functionality
+	pkill $(OUT) || true
 	$(OUT) wiretap localhost:8888 http2.akamai.com &
 	@echo Connect your browser to https://localhost:8888
 	@read -rsp $$'Press any key to continue...\n' -n1 key
 	@pkill $(OUT) 
 
+test-wiretap2: ## Test wiretap with server push
+	pkill $(OUT) || true
+	$(OUT) wiretap localhost:8889 http2.cloudflare.com &
+	@echo Connect your browser to https://localhost:8889
+	@read -rsp $$'Press any key to continue...\n' -n1 key
+	@pkill $(OUT) 
