@@ -21,7 +21,7 @@ go fmt $GOPATH/src/github.com/rmohid/h2d/http2client/version.go
 
 docker run -v $GOPATH:/go -t -i fstab/gox bash -c 'GO15VENDOREXPERIMENT=1 gox github.com/rmohid/h2d'
 
-BUILD_DIR=$(mktemp -d)
+BUILD_DIR=$(mktemp -d h2d)
 mkdir "$BUILD_DIR/h2d-$VERSION"
 cd "$BUILD_DIR/h2d-$VERSION"
 mkdir bin LICENSE

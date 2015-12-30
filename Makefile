@@ -14,6 +14,8 @@ build: .FORCE  ## Build the binary
 get: .FORCE  ## Install into existing golang setup
 	export GO15VENDOREXPERIMENT=1
 	go get github.com/rmohid/h2d
+	go get golang.org/x/text
+	go get golang.org/x/crypto
 
 all: build test
 	@echo 
