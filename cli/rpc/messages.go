@@ -1,11 +1,11 @@
-// Package rpc implements the communication between the h2c command line interface and the h2c process.
+// Package rpc implements the communication between the h2d command line interface and the h2d process.
 //
-// The command line interface uses a simple request/response protocol to communicate with the h2c process:
+// The command line interface uses a simple request/response protocol to communicate with the h2d process:
 //
-// The cli sends a Command struct to the h2c process, and receives a Result struct as result.
+// The cli sends a Command struct to the h2d process, and receives a Result struct as result.
 package rpc
 
-// Command struct is sent from the command line interface to the h2c process.
+// Command struct is sent from the command line interface to the h2d process.
 type Command struct {
 	Name    string
 	Args    []string
@@ -28,7 +28,7 @@ func (cmd *Command) Marshal() (string, error) {
 	return marshal(cmd)
 }
 
-// Used by the h2c process when receiving a command from the command line interface.
+// Used by the h2d process when receiving a command from the command line interface.
 func UnmarshalCommand(encodedCmd string) (*Command, error) {
 	cmd := &Command{}
 	err := unmarshal(encodedCmd, cmd)
@@ -38,7 +38,7 @@ func UnmarshalCommand(encodedCmd string) (*Command, error) {
 	return cmd, nil
 }
 
-// Result is sent from the h2c process to the command line interface.
+// Result is sent from the h2d process to the command line interface.
 type Result struct {
 	Message string
 	Error   *string // Should be type error, but this doesn't seem to work well with JSON marshalling.
@@ -58,7 +58,7 @@ func (res *Result) Marshal() (string, error) {
 	return marshal(res)
 }
 
-// Used by the command line interface when receiving a Result from the h2c process.
+// Used by the command line interface when receiving a Result from the h2d process.
 func UnmarshalResult(encodedResult string) (*Result, error) {
 	res := &Result{}
 	err := unmarshal(encodedResult, res)

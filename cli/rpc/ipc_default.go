@@ -16,7 +16,7 @@ type UnixSocketConnection struct {
 
 func NewIpcManager() *UnixSocketConnection {
 	return &UnixSocketConnection{
-		socketFilePath: filepath.Join(os.TempDir(), "h2c.sock"),
+		socketFilePath: filepath.Join(os.TempDir(), "h2d.sock"),
 	}
 }
 
@@ -38,5 +38,5 @@ func (s *UnixSocketConnection) Dial() (net.Conn, error) {
 }
 
 func (s *UnixSocketConnection) InUseErrorMessage() string {
-	return fmt.Sprintf("The file %v already exists. Make sure h2c is not running and remove the file.", s.socketFilePath)
+	return fmt.Sprintf("The file %v already exists. Make sure h2d is not running and remove the file.", s.socketFilePath)
 }

@@ -1,15 +1,15 @@
-// Package cli implements the h2c command line interface.
+// Package cli implements the h2d command line interface.
 package cli
 
 import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/rmohid/h2c/cli/cmdline"
-	"github.com/rmohid/h2c/cli/daemon"
-	"github.com/rmohid/h2c/cli/rpc"
-	"github.com/rmohid/h2c/cli/wiretap"
-	"github.com/rmohid/h2c/http2client"
+	"github.com/rmohid/h2d/cli/cmdline"
+	"github.com/rmohid/h2d/cli/daemon"
+	"github.com/rmohid/h2d/cli/rpc"
+	"github.com/rmohid/h2d/cli/wiretap"
+	"github.com/rmohid/h2d/http2client"
 	"io"
 	"io/ioutil"
 	"os"
@@ -29,7 +29,7 @@ func Run() (string, error) {
 	}
 	switch cmd.Name {
 	case cmdline.VERSION_COMMAND.Name():
-		return "h2c version " + http2client.VERSION + " build date " + http2client.BUILD_DATE + ".", nil
+		return "h2d version " + http2client.VERSION + " build date " + http2client.BUILD_DATE + ".", nil
 	case cmdline.START_COMMAND.Name():
 		return "", startDaemon(ipc, cmdline.DUMP_OPTION.IsSet(cmd.Options))
 	case cmdline.WIRETAP_COMMAND.Name():
@@ -37,9 +37,9 @@ func Run() (string, error) {
 	default:
 		if !ipc.IsListening() {
 			if cmdline.STOP_COMMAND.Name() == cmd.Name {
-				return "", fmt.Errorf("h2c is not running.")
+				return "", fmt.Errorf("h2d is not running.")
 			} else {
-				fmt.Fprintf(os.Stderr, "h2c is not running. Starting h2c as a background process.\n")
+				fmt.Fprintf(os.Stderr, "h2d is not running. Starting h2d as a background process.\n")
 				err = runDaemonShellCommand()
 				if err != nil {
 					return "", fmt.Errorf("Failed. In order to start the background process manually, run '%v'.", cmdline.StartCmd)
@@ -109,7 +109,7 @@ func startDaemon(ipc rpc.IpcManager, dump bool) error {
 
 func socketInUseError(ipc rpc.IpcManager) error {
 	if pidCommandSuccessful(ipc) {
-		return fmt.Errorf("h2c already running. Run 'h2c stop' to stop the running process.")
+		return fmt.Errorf("h2d already running. Run 'h2d stop' to stop the running process.")
 	} else {
 		return fmt.Errorf(ipc.InUseErrorMessage())
 	}
@@ -156,7 +156,7 @@ func sendCommand(cmd *rpc.Command, ipc rpc.IpcManager) *rpc.Result {
 }
 
 func communicationError(err error) *rpc.Result {
-	return rpc.NewResult("", fmt.Errorf("Failed to communicate with h2c process: %v", err.Error()))
+	return rpc.NewResult("", fmt.Errorf("Failed to communicate with h2d process: %v", err.Error()))
 }
 
 func isNumber(s string) bool {

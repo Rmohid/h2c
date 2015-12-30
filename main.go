@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/rmohid/h2c/cli"
+	"github.com/rmohid/h2d/cli"
 	"os"
 )
 

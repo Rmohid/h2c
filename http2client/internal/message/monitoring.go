@@ -2,7 +2,7 @@ package message
 
 import (
 	"fmt"
-	"github.com/rmohid/h2c/http2client/internal/util"
+	"github.com/rmohid/h2d/http2client/internal/util"
 )
 
 type MonitoringRequest interface {

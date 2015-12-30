@@ -1,7 +1,7 @@
 Target: help ## Description
 	@echo
 
-OUT=h2c
+OUT=h2d
 
 .FORCE:
 
@@ -9,11 +9,11 @@ help: ##  This help dialog.
 	@cat $(MAKEFILE_LIST) | perl -ne 's/(^\S+): .*##\s*(.+)/printf "\n %-16s %s", $$1,$$2/eg'
 
 build: .FORCE  ## Build the binary
-	go install
+	go build
 
 get: .FORCE  ## Install into existing golang setup
 	export GO15VENDOREXPERIMENT=1
-	go get github.com/rmohid/h2c
+	go get github.com/rmohid/h2d
 
 all: build test
 	@echo 

@@ -4,9 +4,9 @@ package http2client
 import (
 	"errors"
 	"fmt"
-	"github.com/rmohid/h2c/http2client/frames"
-	"github.com/rmohid/h2c/http2client/internal/eventloop"
-	"github.com/rmohid/h2c/http2client/internal/message"
+	"github.com/rmohid/h2d/http2client/frames"
+	"github.com/rmohid/h2d/http2client/internal/eventloop"
+	"github.com/rmohid/h2d/http2client/internal/message"
 	"golang.org/x/net/http2/hpack"
 	neturl "net/url"
 	"regexp"
@@ -16,7 +16,7 @@ import (
 
 type Http2Client struct {
 	loop                 *eventloop.Loop
-	customHeaders        []hpack.HeaderField // filled with 'h2c set'
+	customHeaders        []hpack.HeaderField // filled with 'h2d set'
 	err                  error               // if != nil, the Http2Client becomes unusable
 	incomingFrameFilters []func(frames.Frame) frames.Frame
 	outgoingFrameFilters []func(frames.Frame) frames.Frame
@@ -32,93 +32,93 @@ func New() *Http2Client {
 // The filter is called immediately after a frame is read from the server.
 // The filter can be used to inspect and modify the incoming frames.
 // WARNING: The filter will called in another go routine.
-func (h2c *Http2Client) AddFilterForIncomingFrames(filter func(frames.Frame) frames.Frame) {
-	h2c.incomingFrameFilters = append(h2c.incomingFrameFilters, filter)
+func (h2d *Http2Client) AddFilterForIncomingFrames(filter func(frames.Frame) frames.Frame) {
+	h2d.incomingFrameFilters = append(h2d.incomingFrameFilters, filter)
 }
 
 // The filter is called immediately before a frame is sent to the server.
 // The filter can be used to inspect and modify the outgoing frames.
 // WARNING: The filter will called in another go routine.
-func (h2c *Http2Client) AddFilterForOutgoingFrames(filter func(frames.Frame) frames.Frame) {
-	h2c.outgoingFrameFilters = append(h2c.outgoingFrameFilters, filter)
+func (h2d *Http2Client) AddFilterForOutgoingFrames(filter func(frames.Frame) frames.Frame) {
+	h2d.outgoingFrameFilters = append(h2d.outgoingFrameFilters, filter)
 }
 
-func (h2c *Http2Client) Connect(scheme string, host string, port int) (string, error) {
-	if h2c.err != nil {
-		return "", h2c.err
+func (h2d *Http2Client) Connect(scheme string, host string, port int) (string, error) {
+	if h2d.err != nil {
+		return "", h2d.err
 	}
 	if scheme != "https" {
 		return "", fmt.Errorf("%v connections not supported.", scheme)
 	}
-	if h2c.loop != nil {
-		return "", fmt.Errorf("Already connected to %v:%v.", h2c.loop.Host, h2c.loop.Port)
+	if h2d.loop != nil {
+		return "", fmt.Errorf("Already connected to %v:%v.", h2d.loop.Host, h2d.loop.Port)
 	}
-	loop, err := eventloop.Start(host, port, h2c.incomingFrameFilters, h2c.outgoingFrameFilters)
+	loop, err := eventloop.Start(host, port, h2d.incomingFrameFilters, h2d.outgoingFrameFilters)
 	if err != nil {
 		return "", err
 	}
-	h2c.loop = loop
+	h2d.loop = loop
 	return "", nil
 }
 
-func (h2c *Http2Client) isConnected() bool {
-	return h2c.loop != nil
+func (h2d *Http2Client) isConnected() bool {
+	return h2d.loop != nil
 }
 
-func (h2c *Http2Client) Disconnect() (string, error) {
-	if h2c.isConnected() {
+func (h2d *Http2Client) Disconnect() (string, error) {
+	if h2d.isConnected() {
 		// TODO: Send goaway to server.
-		h2c.loop.Shutdown <- true
-		h2c.loop = nil
+		h2d.loop.Shutdown <- true
+		h2d.loop = nil
 	}
 	return "", nil
 }
 
-func (h2c *Http2Client) Get(path string, includeHeaders bool, timeoutInSeconds int) (string, error) {
-	return h2c.putOrPostOrGet("GET", path, nil, includeHeaders, timeoutInSeconds)
+func (h2d *Http2Client) Get(path string, includeHeaders bool, timeoutInSeconds int) (string, error) {
+	return h2d.putOrPostOrGet("GET", path, nil, includeHeaders, timeoutInSeconds)
 }
 
-func (h2c *Http2Client) Put(path string, data []byte, includeHeaders bool, timeoutInSeconds int) (string, error) {
-	return h2c.putOrPostOrGet("PUT", path, data, includeHeaders, timeoutInSeconds)
+func (h2d *Http2Client) Put(path string, data []byte, includeHeaders bool, timeoutInSeconds int) (string, error) {
+	return h2d.putOrPostOrGet("PUT", path, data, includeHeaders, timeoutInSeconds)
 }
 
-func (h2c *Http2Client) Post(path string, data []byte, includeHeaders bool, timeoutInSeconds int) (string, error) {
-	return h2c.putOrPostOrGet("POST", path, data, includeHeaders, timeoutInSeconds)
+func (h2d *Http2Client) Post(path string, data []byte, includeHeaders bool, timeoutInSeconds int) (string, error) {
+	return h2d.putOrPostOrGet("POST", path, data, includeHeaders, timeoutInSeconds)
 }
 
-func (h2c *Http2Client) putOrPostOrGet(method string, path string, data []byte, includeHeaders bool, timeoutInSeconds int) (string, error) {
-	if h2c.err != nil {
-		return "", h2c.err
+func (h2d *Http2Client) putOrPostOrGet(method string, path string, data []byte, includeHeaders bool, timeoutInSeconds int) (string, error) {
+	if h2d.err != nil {
+		return "", h2d.err
 	}
-	url, err := h2c.completeUrlWithCurrentConnectionData(path)
+	url, err := h2d.completeUrlWithCurrentConnectionData(path)
 	if err != nil {
 		return "", err
 	}
-	if !h2c.isConnected() {
+	if !h2d.isConnected() {
 		scheme := "https"
 		if url.Scheme != "" {
 			scheme = url.Scheme
 		}
 		host, port := hostAndPort(url)
 		if host == "" {
-			return "", fmt.Errorf("Not connected. Run 'h2c connect' first.")
+			return "", fmt.Errorf("Not connected. Run 'h2d connect' first.")
 		}
-		_, err := h2c.Connect(scheme, host, port)
+		_, err := h2d.Connect(scheme, host, port)
 		if err != nil {
 			return "", err
 		}
 	}
-	if !h2c.urlMatchesCurrentConnection(url) {
-		return "", fmt.Errorf("Cannot query %v while connected to %v", url.Scheme+"://"+url.Host, "https://"+hostAndPortString(h2c.loop.Host, h2c.loop.Port))
+	if !h2d.urlMatchesCurrentConnection(url) {
+		return "", fmt.Errorf("Cannot query %v while connected to %v", url.Scheme+"://"+url.Host, "https://"+hostAndPortString(h2d.loop.Host, h2d.loop.Port))
 	}
 	request := message.NewRequest(method, url)
-	for _, header := range h2c.customHeaders {
+	for _, header := range h2d.customHeaders {
 		request.AddHeader(header.Name, header.Value)
 	}
 	if data != nil {
 		request.AddData(data, true)
 	}
-	h2c.loop.HttpRequests <- request
+	h2d.loop.HttpRequests <- request
 	response, err := request.AwaitCompletion(timeoutInSeconds)
 	if err != nil {
 		return "", err
@@ -135,7 +135,7 @@ func (h2c *Http2Client) putOrPostOrGet(method string, path string, data []byte, 
 	return result, nil
 }
 
-func (h2c *Http2Client) completeUrlWithCurrentConnectionData(path string) (*neturl.URL, error) {
+func (h2d *Http2Client) completeUrlWithCurrentConnectionData(path string) (*neturl.URL, error) {
 	if regexp.MustCompile(":[0-9]+").MatchString(path) && !strings.Contains(path, "://") && !strings.HasPrefix("/", path) {
 		path = "/" + path // Treat "localhost:8443" as "/localhost:8443" in GET, PUT, POST, DELETE requests.
 	}
@@ -143,24 +143,24 @@ func (h2c *Http2Client) completeUrlWithCurrentConnectionData(path string) (*netu
 	if err != nil {
 		return nil, fmt.Errorf("%v: Invalid path.")
 	}
-	if !h2c.isConnected() {
+	if !h2d.isConnected() {
 		return url, nil
 	}
 	if url.Scheme == "" {
 		url.Scheme = "https"
 	}
 	if url.Host == "" {
-		url.Host = hostAndPortString(h2c.loop.Host, h2c.loop.Port)
+		url.Host = hostAndPortString(h2d.loop.Host, h2d.loop.Port)
 	}
 	return url, nil
 }
 
-func (h2c *Http2Client) urlMatchesCurrentConnection(url *neturl.URL) bool {
-	if !h2c.isConnected() {
+func (h2d *Http2Client) urlMatchesCurrentConnection(url *neturl.URL) bool {
+	if !h2d.isConnected() {
 		return false
 	}
 	host, port := hostAndPort(url)
-	return url.Scheme == "https" && host == h2c.loop.Host && port == h2c.loop.Port
+	return url.Scheme == "https" && host == h2d.loop.Host && port == h2d.loop.Port
 }
 
 func hostAndPort(url *neturl.URL) (string, int) {
@@ -182,15 +182,15 @@ func hostAndPortString(host string, port int) string {
 	return result
 }
 
-func (h2c *Http2Client) PushList() (string, error) {
-	if h2c.err != nil {
-		return "", h2c.err
+func (h2d *Http2Client) PushList() (string, error) {
+	if h2d.err != nil {
+		return "", h2d.err
 	}
-	if !h2c.isConnected() {
+	if !h2d.isConnected() {
 		return "", fmt.Errorf("Not connected.")
 	}
 	request := message.NewMonitoringRequest()
-	h2c.loop.MonitoringRequests <- request
+	h2d.loop.MonitoringRequests <- request
 	response, err := request.AwaitCompletion(10)
 	if err != nil {
 		return "", err
@@ -198,8 +198,8 @@ func (h2c *Http2Client) PushList() (string, error) {
 	return strings.Join(response.AvailablePushResponses(), "\n"), nil
 }
 
-func (h2c *Http2Client) SetHeader(name, value string) (string, error) {
-	h2c.customHeaders = append(h2c.customHeaders, hpack.HeaderField{
+func (h2d *Http2Client) SetHeader(name, value string) (string, error) {
+	h2d.customHeaders = append(h2d.customHeaders, hpack.HeaderField{
 		Name:  normalizeHeaderName(name),
 		Value: value,
 	})
@@ -215,11 +215,11 @@ func normalizeHeaderName(name string) string {
 	return strings.ToLower(name)
 }
 
-func (h2c *Http2Client) UnsetHeader(nameValue []string) (string, error) {
+func (h2d *Http2Client) UnsetHeader(nameValue []string) (string, error) {
 	if len(nameValue) != 1 && len(nameValue) != 2 {
 		return "", errors.New("Syntax error.")
 	}
-	remainingHeaders := make([]hpack.HeaderField, 0, len(h2c.customHeaders))
+	remainingHeaders := make([]hpack.HeaderField, 0, len(h2d.customHeaders))
 	matches := func(field hpack.HeaderField) bool {
 		if len(nameValue) == 1 {
 			return field.Name == normalizeHeaderName(nameValue[0])
@@ -227,11 +227,11 @@ func (h2c *Http2Client) UnsetHeader(nameValue []string) (string, error) {
 			return field.Name == normalizeHeaderName(nameValue[0]) && field.Value == nameValue[1]
 		}
 	}
-	for _, field := range h2c.customHeaders {
+	for _, field := range h2d.customHeaders {
 		if !matches(field) {
 			remainingHeaders = append(remainingHeaders, field)
 		}
 	}
-	h2c.customHeaders = remainingHeaders
+	h2d.customHeaders = remainingHeaders
 	return "", nil
 }

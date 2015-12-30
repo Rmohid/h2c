@@ -3,12 +3,12 @@ package cmdline
 
 import (
 	"errors"
-	"github.com/rmohid/h2c/cli/rpc"
+	"github.com/rmohid/h2d/cli/rpc"
 )
 
 func Parse(args []string) (*rpc.Command, error) {
 	if len(args) == 1 && (args[0] == HELP_OPTION.short || args[0] == HELP_OPTION.long) {
-		// h2c --help
+		// h2d --help
 		return nil, errors.New(globalUsage())
 	}
 	cmd, err := findCommand(args)
@@ -61,7 +61,7 @@ func parseOptions(args []string, cmd *command) ([]string, map[string]string, err
 }
 
 func globalUsage() string {
-	result := "Usage: h2c (rmohid) ["
+	result := "Usage: h2d (rmohid) ["
 	first := true
 	for _, cmd := range commands {
 		if !first {
@@ -70,12 +70,12 @@ func globalUsage() string {
 		result += cmd.name
 		first = false
 	}
-	result += "] <args>\nRun 'h2c [cmd] " + HELP_OPTION.long + "' to learn more about a command."
+	result += "] <args>\nRun 'h2d [cmd] " + HELP_OPTION.long + "' to learn more about a command."
 	return result
 }
 
 func usage(cmd *command) string {
-	return "Usage: " + cmd.usage + "\nRun 'h2c " + cmd.name + " " + HELP_OPTION.long + "' for help."
+	return "Usage: " + cmd.usage + "\nRun 'h2d " + cmd.name + " " + HELP_OPTION.long + "' for help."
 }
 
 func help(cmd *command) string {
@@ -121,7 +121,7 @@ func findCommand(args []string) (*command, error) {
 			return findCommand(args[1:])
 		}
 	}
-	return nil, errors.New(args[0] + ": Unknown command. Run 'h2c " + HELP_OPTION.long + "' for help.")
+	return nil, errors.New(args[0] + ": Unknown command. Run 'h2d " + HELP_OPTION.long + "' for help.")
 }
 
 func (opt *option) findIndex(argv []string) (int, bool) {

@@ -3,8 +3,8 @@ package wiretap
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/rmohid/h2c/cli/daemon"
-	"github.com/rmohid/h2c/http2client/frames"
+	"github.com/rmohid/h2d/cli/daemon"
+	"github.com/rmohid/h2d/http2client/frames"
 	"golang.org/x/net/http2/hpack"
 	"io"
 	"net"

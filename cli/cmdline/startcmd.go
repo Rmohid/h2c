@@ -2,4 +2,4 @@
 
 package cmdline
 
-var StartCmd = "h2c start &"
+var StartCmd = "h2d start &"

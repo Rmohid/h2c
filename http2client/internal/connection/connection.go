@@ -3,9 +3,9 @@ package connection
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/rmohid/h2c/http2client/frames"
-	"github.com/rmohid/h2c/http2client/internal/message"
-	"github.com/rmohid/h2c/http2client/internal/util"
+	"github.com/rmohid/h2d/http2client/frames"
+	"github.com/rmohid/h2d/http2client/internal/message"
+	"github.com/rmohid/h2d/http2client/internal/util"
 	"golang.org/x/net/http2/hpack"
 	"io"
 	"net"

@@ -1,13 +1,13 @@
-// Package daemon implements the h2c process, i.e, the process started with 'h2c start'.
+// Package daemon implements the h2d process, i.e, the process started with 'h2d start'.
 package daemon
 
 import (
 	"bufio"
 	"fmt"
-	"github.com/rmohid/h2c/cli/cmdline"
-	"github.com/rmohid/h2c/cli/rpc"
-	"github.com/rmohid/h2c/http2client"
-	"github.com/rmohid/h2c/http2client/frames"
+	"github.com/rmohid/h2d/cli/cmdline"
+	"github.com/rmohid/h2d/cli/rpc"
+	"github.com/rmohid/h2d/http2client"
+	"github.com/rmohid/h2d/http2client/frames"
 	"io"
 	"net"
 	"os"
@@ -26,19 +26,19 @@ func outgoingFrameFilter(frame frames.Frame) frames.Frame {
 	return frame
 }
 
-// Run the h2c process, i.e, the process started with 'h2c start'.
+// Run the h2d process, i.e, the process started with 'h2d start'.
 //
-// The h2c process keeps an Http2Client instance, reads Commands from the socket file,
+// The h2d process keeps an Http2Client instance, reads Commands from the socket file,
 // and uses the Http2Client to execute these commands.
 //
-// The socket will be closed when the h2c process is terminated.
+// The socket will be closed when the h2d process is terminated.
 func Run(sock net.Listener, dump bool) error {
 	var conn net.Conn
 	var err error
-	var h2c = http2client.New()
+	var h2d = http2client.New()
 	if dump {
-		h2c.AddFilterForIncomingFrames(incomingFrameFilter)
-		h2c.AddFilterForOutgoingFrames(outgoingFrameFilter)
+		h2d.AddFilterForIncomingFrames(incomingFrameFilter)
+		h2d.AddFilterForOutgoingFrames(outgoingFrameFilter)
 	}
 	stopOnSigterm(sock)
 	for {
@@ -46,13 +46,13 @@ func Run(sock net.Listener, dump bool) error {
 			return fmt.Errorf("Error while waiting for commands: %v", err.Error())
 			stop(sock)
 		}
-		go executeCommandAndCloseConnection(h2c, conn, sock)
+		go executeCommandAndCloseConnection(h2d, conn, sock)
 	}
 }
 
 func close(sock io.Closer) {
 	if err := sock.Close(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error terminating the h2c process: %v", err.Error())
+		fmt.Fprintf(os.Stderr, "Error terminating the h2d process: %v", err.Error())
 	}
 }
 
@@ -70,37 +70,37 @@ func stopOnSigterm(sock net.Listener) {
 	}(sigc)
 }
 
-func execute(h2c *http2client.Http2Client, cmd *rpc.Command) (string, error) {
+func execute(h2d *http2client.Http2Client, cmd *rpc.Command) (string, error) {
 	switch cmd.Name {
 	case cmdline.CONNECT_COMMAND.Name():
-		return executeConnect(h2c, cmd)
+		return executeConnect(h2d, cmd)
 	case cmdline.DISCONNECT_COMMAND.Name():
-		return executeDisconnect(h2c, cmd)
+		return executeDisconnect(h2d, cmd)
 	case cmdline.PID_COMMAND.Name():
 		return strconv.Itoa(os.Getpid()), nil
 	case cmdline.GET_COMMAND.Name():
-		return executeGet(h2c, cmd)
+		return executeGet(h2d, cmd)
 	case cmdline.PUT_COMMAND.Name():
-		return executePut(h2c, cmd)
+		return executePut(h2d, cmd)
 	case cmdline.POST_COMMAND.Name():
-		return executePost(h2c, cmd)
+		return executePost(h2d, cmd)
 	case cmdline.PUSH_LIST_COMMAND.Name():
-		return executePushList(h2c, cmd)
+		return executePushList(h2d, cmd)
 	case cmdline.SET_COMMAND.Name():
-		return h2c.SetHeader(cmd.Args[0], cmd.Args[1])
+		return h2d.SetHeader(cmd.Args[0], cmd.Args[1])
 	case cmdline.UNSET_COMMAND.Name():
-		return h2c.UnsetHeader(cmd.Args)
+		return h2d.UnsetHeader(cmd.Args)
 	default:
 		return "", fmt.Errorf("%v: unknown command", cmd.Name)
 	}
 }
 
-func executeConnect(h2c *http2client.Http2Client, cmd *rpc.Command) (string, error) {
+func executeConnect(h2d *http2client.Http2Client, cmd *rpc.Command) (string, error) {
 	scheme, host, port, err := parseSchemeHostPort(cmd.Args[0])
 	if err != nil {
 		return "", err
 	}
-	return h2c.Connect(scheme, host, port)
+	return h2d.Connect(scheme, host, port)
 }
 
 // "https://localhost:8443" -> "https", "localhost", 8443, nil
@@ -142,11 +142,11 @@ func parseSchemeHostPort(arg string) (string, string, int, error) {
 	return scheme, host, port, nil
 }
 
-func executeDisconnect(h2c *http2client.Http2Client, cmd *rpc.Command) (string, error) {
-	return h2c.Disconnect()
+func executeDisconnect(h2d *http2client.Http2Client, cmd *rpc.Command) (string, error) {
+	return h2d.Disconnect()
 }
 
-func executeGet(h2c *http2client.Http2Client, cmd *rpc.Command) (string, error) {
+func executeGet(h2d *http2client.Http2Client, cmd *rpc.Command) (string, error) {
 	includeHeaders := cmdline.INCLUDE_OPTION.IsSet(cmd.Options)
 	var timeout int
 	var err error
@@ -158,22 +158,22 @@ func executeGet(h2c *http2client.Http2Client, cmd *rpc.Command) (string, error) 
 	} else {
 		timeout = 10
 	}
-	return h2c.Get(cmd.Args[0], includeHeaders, timeout)
+	return h2d.Get(cmd.Args[0], includeHeaders, timeout)
 }
 
-func executePushList(h2c *http2client.Http2Client, cmd *rpc.Command) (string, error) {
-	return h2c.PushList()
+func executePushList(h2d *http2client.Http2Client, cmd *rpc.Command) (string, error) {
+	return h2d.PushList()
 }
 
-func executePut(h2c *http2client.Http2Client, cmd *rpc.Command) (string, error) {
-	return executePutOrPost(h2c, cmd, h2c.Put)
+func executePut(h2d *http2client.Http2Client, cmd *rpc.Command) (string, error) {
+	return executePutOrPost(h2d, cmd, h2d.Put)
 }
 
-func executePost(h2c *http2client.Http2Client, cmd *rpc.Command) (string, error) {
-	return executePutOrPost(h2c, cmd, h2c.Post)
+func executePost(h2d *http2client.Http2Client, cmd *rpc.Command) (string, error) {
+	return executePutOrPost(h2d, cmd, h2d.Post)
 }
 
-func executePutOrPost(h2c *http2client.Http2Client, cmd *rpc.Command, putOrPost func(path string, data []byte, includeHeaders bool, timeoutInSeconds int) (string, error)) (string, error) {
+func executePutOrPost(h2d *http2client.Http2Client, cmd *rpc.Command, putOrPost func(path string, data []byte, includeHeaders bool, timeoutInSeconds int) (string, error)) (string, error) {
 	includeHeaders := cmdline.INCLUDE_OPTION.IsSet(cmd.Options)
 	var timeout int
 	var err error
@@ -192,7 +192,7 @@ func executePutOrPost(h2c *http2client.Http2Client, cmd *rpc.Command, putOrPost 
 	return putOrPost(cmd.Args[0], data, includeHeaders, timeout)
 }
 
-func executeCommandAndCloseConnection(h2c *http2client.Http2Client, conn net.Conn, sock net.Listener) {
+func executeCommandAndCloseConnection(h2d *http2client.Http2Client, conn net.Conn, sock net.Listener) {
 	defer conn.Close()
 	reader := bufio.NewReader(conn)
 	encodedCmd, err := reader.ReadString('\n')
@@ -205,7 +205,7 @@ func executeCommandAndCloseConnection(h2c *http2client.Http2Client, conn net.Con
 		writeResult(conn, "", nil)
 		stop(sock)
 	} else {
-		msg, err := execute(h2c, cmd)
+		msg, err := execute(h2d, cmd)
 		writeResult(conn, msg, err)
 	}
 }
@@ -224,5 +224,5 @@ func writeResult(conn io.Writer, msg string, err error) {
 }
 
 func handleCommunicationError(format string, a ...interface{}) {
-	fmt.Fprintf(os.Stderr, "Error communicating with the h2c command line: %v", fmt.Sprintf(format, a))
+	fmt.Fprintf(os.Stderr, "Error communicating with the h2d command line: %v", fmt.Sprintf(format, a))
 }

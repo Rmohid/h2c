@@ -16,11 +16,11 @@ type command struct {
 var (
 	START_COMMAND = &command{
 		name: "start",
-		description: "Start the h2c process. The h2c process must be started before running any other\n" +
-			"command. To run h2c as a background process, run '" + StartCmd + "'.",
+		description: "Start the h2d process. The h2d process must be started before running any other\n" +
+			"command. To run h2d as a background process, run '" + StartCmd + "'.",
 		minArgs: 0,
 		maxArgs: 0,
-		usage:   "h2c start [options]",
+		usage:   "h2d start [options]",
 	}
 	CONNECT_COMMAND = &command{
 		name:        "connect",
@@ -30,14 +30,14 @@ var (
 		areArgsValid: func(args []string) bool {
 			return regexp.MustCompile("^(https?://)?[^:]+(:[0-9]+)?$").MatchString(args[0])
 		},
-		usage: "h2c connect [options] <host>:<port>",
+		usage: "h2d connect [options] <host>:<port>",
 	}
 	DISCONNECT_COMMAND = &command{
 		name:        "disconnect",
 		description: "Disconnect from server.",
 		minArgs:     0,
 		maxArgs:     0,
-		usage:       "h2c disconnect",
+		usage:       "h2d disconnect",
 	}
 	GET_COMMAND = &command{
 		name:        "get",
@@ -47,7 +47,7 @@ var (
 		areArgsValid: func(args []string) bool {
 			return true
 		},
-		usage: "h2c get [options] <path>",
+		usage: "h2d get [options] <path>",
 	}
 	PUT_COMMAND = &command{
 		name:        "put",
@@ -57,7 +57,7 @@ var (
 		areArgsValid: func(args []string) bool {
 			return true
 		},
-		usage: "h2c put [options] <path>",
+		usage: "h2d put [options] <path>",
 	}
 	POST_COMMAND = &command{
 		name:        "post",
@@ -67,7 +67,7 @@ var (
 		areArgsValid: func(args []string) bool {
 			return true
 		},
-		usage: "h2c post [options] <path>",
+		usage: "h2d post [options] <path>",
 	}
 	SET_COMMAND = &command{
 		name:        "set",
@@ -77,11 +77,11 @@ var (
 		areArgsValid: func(args []string) bool {
 			return true
 		},
-		usage: "h2c set <header-name> <header-value>",
+		usage: "h2d set <header-name> <header-value>",
 	}
 	UNSET_COMMAND = &command{
 		name: "unset",
-		description: "Undo 'h2c set'. The header will no longer be included in subsequent requests.\n" +
+		description: "Undo 'h2d set'. The header will no longer be included in subsequent requests.\n" +
 			"If <header-value> is omitted, all headers with <header-name> are removed.\n" +
 			"Otherwise, only the specific value is removed but other headers with the same\n" +
 			"name remain.",
@@ -90,28 +90,28 @@ var (
 		areArgsValid: func(args []string) bool {
 			return true
 		},
-		usage: "h2c unset <header-name> [<header-value>]",
+		usage: "h2d unset <header-name> [<header-value>]",
 	}
 	PID_COMMAND = &command{
 		name:        "pid",
-		description: "Show the process id of the h2c process.",
+		description: "Show the process id of the h2d process.",
 		minArgs:     0,
 		maxArgs:     0,
-		usage:       "h2c pid",
+		usage:       "h2d pid",
 	}
 	PUSH_LIST_COMMAND = &command{
 		name:        "push-list",
 		description: "List responses that are available as push promises.",
 		minArgs:     0,
 		maxArgs:     0,
-		usage:       "h2c push-list",
+		usage:       "h2d push-list",
 	}
 	STOP_COMMAND = &command{
 		name:        "stop",
-		description: "Stop the h2c process.",
+		description: "Stop the h2d process.",
 		minArgs:     0,
 		maxArgs:     0,
-		usage:       "h2c stop",
+		usage:       "h2d stop",
 	}
 	WIRETAP_COMMAND = &command{
 		name: "wiretap",
@@ -119,14 +119,14 @@ var (
 			"The wiretap command listens on localhost:port and fowards all traffic to remotehost:port.",
 		minArgs: 2,
 		maxArgs: 2,
-		usage:   "h2c wiretap <localhost:port> <remotehost:port>\n",
+		usage:   "h2d wiretap <localhost:port> <remotehost:port>\n",
 	}
 	VERSION_COMMAND = &command{
 		name:        "version",
-		description: "Print the version of h2c.",
+		description: "Print the version of h2d.",
 		minArgs:     0,
 		maxArgs:     0,
-		usage:       "h2c version",
+		usage:       "h2d version",
 	}
 )
 

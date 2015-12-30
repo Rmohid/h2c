@@ -1,7 +1,7 @@
 package cmdline
 
 import (
-	"github.com/rmohid/h2c/cli/rpc"
+	"github.com/rmohid/h2d/cli/rpc"
 	"testing"
 )
 

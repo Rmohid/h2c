@@ -3,7 +3,7 @@ package daemon
 import (
 	"fmt"
 	"github.com/fatih/color"
-	"github.com/rmohid/h2c/http2client/frames"
+	"github.com/rmohid/h2d/http2client/frames"
 )
 
 var (
