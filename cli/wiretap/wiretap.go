@@ -3,6 +3,7 @@ package wiretap
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/rmohid/go-template/config"
 	"github.com/rmohid/h2d/cli/daemon"
 	"github.com/rmohid/h2d/http2client/frames"
 	"golang.org/x/net/http2/hpack"
@@ -68,7 +69,14 @@ zuaJapKwoKydbiLGlhvpcBtsE5ahRo3A62ckaeVi4JX7dXcpqAtM9A==
 
 const CLIENT_PREFACE = "PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"
 
+var opts = [][]string{
+	{"config.enableFlagParse", "no"},
+	{"wiretap.CERT", CERT, "rsa 2048 certificate"},
+	{"wiretap.KEY", KEY, "rsa 2048 key"},
+}
+
 func Run(local string, remote string) error {
+	config.ParseArgs(opts)
 	if !strings.Contains(remote, ":") {
 		remote = remote + ":443"
 	}
@@ -125,6 +133,7 @@ func dumpFrames(in chan frames.Frame, out chan frames.Frame) {
 func forwardFrames(from net.Conn, to net.Conn, remoteAuthority string, dump chan frames.Frame) {
 	defer from.Close()
 	defer to.Close()
+	fmt.Fprintf(os.Stderr, "\n new connection, from (%v), to (%v)\n", from.LocalAddr(), to.RemoteAddr())
 	encodingContext := frames.NewEncodingContext()
 	decodingContext := frames.NewDecodingContext()
 	for {
@@ -216,7 +225,7 @@ func writeFrame(conn net.Conn, frame frames.Frame, context *frames.EncodingConte
 }
 
 func negotiateH2Protocol(conn net.Conn) (*tls.Conn, error) {
-	keyPair, err := tls.X509KeyPair([]byte(CERT), []byte(KEY))
+	keyPair, err := tls.X509KeyPair([]byte(config.Get("wiretap.CERT")), []byte(config.Get("wiretap.KEY")))
 	if err != nil {
 		return nil, err
 	}
